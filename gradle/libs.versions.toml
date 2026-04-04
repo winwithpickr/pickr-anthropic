@@ -1,0 +1,23 @@
+[versions]
+kotlin = "2.0.21"
+coroutines = "1.9.0"
+serialization = "1.7.3"
+ktor = "3.0.3"
+mockk = "1.13.13"
+engine = "0.4.0"
+
+[libraries]
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+kotlinx-coroutines-core    = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",     version.ref = "coroutines" }
+kotlinx-coroutines-test    = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test",     version.ref = "coroutines" }
+ktor-client-core           = { module = "io.ktor:ktor-client-core",                          version.ref = "ktor" }
+ktor-client-cio            = { module = "io.ktor:ktor-client-cio",                           version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation",      version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json",      version.ref = "ktor" }
+kotlin-test                = { module = "org.jetbrains.kotlin:kotlin-test",                   version.ref = "kotlin" }
+mockk                      = { module = "io.mockk:mockk",                                    version.ref = "mockk" }
+pickr-engine               = { module = "com.winwithpickr:engine",                            version.ref = "engine" }
+
+[plugins]
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
