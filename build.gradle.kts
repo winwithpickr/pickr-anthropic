@@ -40,6 +40,20 @@ kotlin {
     }
 }
 
+// Exclude integration tests by default; run with:
+//   ./gradlew jvmTest -Dinclude.tags=integration
+//   ANTHROPIC_API_KEY=sk-... ./gradlew jvmTest -Dinclude.tags=integration
+tasks.named<Test>("jvmTest") {
+    useJUnitPlatform {
+        val includeTags = System.getProperty("include.tags")
+        if (includeTags != null) {
+            includeTags(includeTags)
+        } else {
+            excludeTags("integration")
+        }
+    }
+}
+
 publishing {
     publications.withType<MavenPublication> {
         pom {
