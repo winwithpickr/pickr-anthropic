@@ -4,6 +4,7 @@ import com.winwithpickr.anthropic.models.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.statement.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -27,7 +28,7 @@ class AnthropicClient(
 ) {
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) { json(json) }
-        install(HttpTimeout) { requestTimeoutMillis = 5_000 }
+        install(HttpTimeout) { requestTimeoutMillis = 15_000 }
     }
 
     companion object {
@@ -103,6 +104,11 @@ class AnthropicClient(
             header("x-api-key", apiKey)
             header("anthropic-version", API_VERSION)
             setBody(request)
+        }
+
+        if (!response.status.isSuccess()) {
+            val errorBody = response.bodyAsText()
+            throw RuntimeException("Anthropic API error ${response.status.value}: $errorBody")
         }
 
         val messagesResponse = response.body<MessagesResponse>()
