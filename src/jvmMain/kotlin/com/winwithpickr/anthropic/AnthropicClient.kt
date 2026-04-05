@@ -17,7 +17,7 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 
-private val json = Json { ignoreUnknownKeys = true; isLenient = true }
+private val json = Json { ignoreUnknownKeys = true; isLenient = true; encodeDefaults = true }
 
 /**
  * Thin Ktor wrapper around the Anthropic Messages API.
