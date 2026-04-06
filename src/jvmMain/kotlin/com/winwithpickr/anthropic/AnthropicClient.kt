@@ -51,6 +51,7 @@ class AnthropicClient(
             - "start" or "watch" → trigger_mode "watch" (bot watches for host signal to end)
             - "pick" without "start" → trigger_mode "immediate" (pick winners now)
             - "in Xh" or "in Xd" → trigger_mode "scheduled" with scheduled_delay_hours
+            - "predict", "prediction", "whoever gets closest", "guess the score" → selection_mode "predict", trigger_mode "watch"
             - Entry sources: replies (default), retweets, likes, quote tweets
             - "from replies+retweets" or "who replied and retweeted" → reply=true, retweet=true
             - "must be following" or "followers only" → follow_host=true
@@ -67,6 +68,7 @@ class AnthropicClient(
                 putJsonObject("winners") { put("type", "integer"); put("description", "Number of winners to pick (default 1)") }
                 putJsonObject("trigger_mode") { put("type", "string"); put("description", "immediate, watch, or scheduled"); putJsonArray("enum") { add(kotlinx.serialization.json.JsonPrimitive("immediate")); add(kotlinx.serialization.json.JsonPrimitive("watch")); add(kotlinx.serialization.json.JsonPrimitive("scheduled")) } }
                 putJsonObject("scheduled_delay_hours") { put("type", "integer"); put("description", "Hours to delay before picking (only for scheduled mode)") }
+                putJsonObject("selection_mode") { put("type", "string"); put("description", "random (default) or predict (prediction giveaway — pick from best-scoring entries)"); putJsonArray("enum") { add(kotlinx.serialization.json.JsonPrimitive("random")); add(kotlinx.serialization.json.JsonPrimitive("predict")) } }
                 putJsonObject("reply") { put("type", "boolean"); put("description", "Include replies as entry source") }
                 putJsonObject("retweet") { put("type", "boolean"); put("description", "Include retweets as entry source") }
                 putJsonObject("like") { put("type", "boolean"); put("description", "Include likes as entry source") }
@@ -81,6 +83,42 @@ class AnthropicClient(
             }
             putJsonArray("required") { add(kotlinx.serialization.json.JsonPrimitive("is_command")) }
         }
+    }
+
+    /**
+     * Generic tool call — sends a message and forces a specific tool response.
+     * Returns the tool input JSON or null.
+     */
+    suspend fun callTool(
+        systemPrompt: String,
+        userMessage: String,
+        tool: Tool,
+    ): JsonElement? {
+        val request = MessagesRequest(
+            model = model,
+            maxTokens = 4096,
+            system = systemPrompt,
+            messages = listOf(Message(role = "user", content = userMessage)),
+            tools = listOf(tool),
+            toolChoice = ToolChoice(type = "tool", name = tool.name),
+        )
+
+        val response = client.post(API_URL) {
+            contentType(ContentType.Application.Json)
+            header("x-api-key", apiKey)
+            header("anthropic-version", API_VERSION)
+            setBody(request)
+        }
+
+        if (!response.status.isSuccess()) {
+            val errorBody = response.bodyAsText()
+            throw RuntimeException("Anthropic API error ${response.status.value}: $errorBody")
+        }
+
+        val messagesResponse = response.body<MessagesResponse>()
+        val toolBlock = messagesResponse.content.firstOrNull { it.type == "tool_use" && it.name == tool.name }
+            ?: return null
+        return toolBlock.input
     }
 
     /**

@@ -3,6 +3,7 @@ package com.winwithpickr.anthropic
 import com.winwithpickr.core.CommandExtractor
 import com.winwithpickr.core.models.EntryConditions
 import com.winwithpickr.core.models.ParsedCommand
+import com.winwithpickr.core.models.SelectionMode
 import com.winwithpickr.core.models.TriggerMode
 
 data class AnthropicConfig(
@@ -22,9 +23,16 @@ class AnthropicCommandExtractor(config: AnthropicConfig) : CommandExtractor {
         val extracted = client.extractCommand(text, botHandle) ?: return null
         if (!extracted.isCommand) return null
 
-        val triggerMode = when (extracted.triggerMode) {
-            "watch" -> TriggerMode.WATCH
-            "scheduled" -> TriggerMode.SCHEDULED
+        val selectionMode = when (extracted.selectionMode) {
+            "predict" -> SelectionMode.PREDICT
+            else -> SelectionMode.RANDOM
+        }
+
+        val triggerMode = when {
+            // Predict always forces watch mode
+            selectionMode == SelectionMode.PREDICT -> TriggerMode.WATCH
+            extracted.triggerMode == "watch" -> TriggerMode.WATCH
+            extracted.triggerMode == "scheduled" -> TriggerMode.SCHEDULED
             else -> TriggerMode.IMMEDIATE
         }
 
@@ -50,6 +58,7 @@ class AnthropicCommandExtractor(config: AnthropicConfig) : CommandExtractor {
             ),
             triggerMode = triggerMode,
             scheduledDelayMs = scheduledDelayMs,
+            selectionMode = selectionMode,
         )
     }
 }

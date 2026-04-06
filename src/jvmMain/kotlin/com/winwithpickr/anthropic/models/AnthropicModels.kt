@@ -63,6 +63,7 @@ data class ExtractedCommand(
     val winners: Int = 1,
     @SerialName("trigger_mode") val triggerMode: String = "immediate",
     @SerialName("scheduled_delay_hours") val scheduledDelayHours: Int? = null,
+    @SerialName("selection_mode") val selectionMode: String = "random",
     val reply: Boolean = true,
     val retweet: Boolean = false,
     val like: Boolean = false,
@@ -74,4 +75,22 @@ data class ExtractedCommand(
     @SerialName("required_hashtag") val requiredHashtag: String? = null,
     @SerialName("required_quote_text") val requiredQuoteText: String? = null,
     @SerialName("min_tags") val minTags: Int = 0,
+)
+
+// ── Prediction evaluation models ────────────────────────────────────────────
+
+@Serializable
+data class PredictionEntry(
+    @SerialName("user_id") val userId: String,
+    val username: String,
+    @SerialName("reply_text") val replyText: String,
+)
+
+@Serializable
+data class ScoredPrediction(
+    @SerialName("user_id") val userId: String,
+    val username: String,
+    @SerialName("extracted_prediction") val extractedPrediction: String,
+    val score: Int,
+    val reasoning: String,
 )
