@@ -77,6 +77,24 @@ data class ExtractedCommand(
     @SerialName("min_tags") val minTags: Int = 0,
 )
 
+// ── Deadline extraction models ───────────────────────────────────────────────
+
+@Serializable
+data class ExtractedDeadline(
+    val found: Boolean,
+    @SerialName("deadline_iso") val deadlineIso: String? = null,
+    val reasoning: String? = null,
+)
+
+// ── Answer extraction models ────────────────────────────────────────────────
+
+@Serializable
+data class ExtractedAnswer(
+    @SerialName("is_answer") val isAnswer: Boolean,
+    val answer: String? = null,
+    val reasoning: String? = null,
+)
+
 // ── Prediction evaluation models ────────────────────────────────────────────
 
 @Serializable
