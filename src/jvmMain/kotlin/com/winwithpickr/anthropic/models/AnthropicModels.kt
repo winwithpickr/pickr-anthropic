@@ -84,6 +84,14 @@ data class ExtractedDeadline(
     val found: Boolean,
     @SerialName("deadline_iso") val deadlineIso: String? = null,
     val reasoning: String? = null,
+    @SerialName("sport_context") val sportContext: SportContext? = null,
+)
+
+@Serializable
+data class SportContext(
+    val sport: String? = null,
+    val league: String? = null,
+    val teams: List<String> = emptyList(),
 )
 
 // ── Answer extraction models ────────────────────────────────────────────────
