@@ -29,20 +29,6 @@ On the server, `SmartCommandParser` orchestrates the flow:
 
 The regex parser in pickr-twitter handles structured commands (`@winwithpickr pick 3 from replies+retweets`). This library handles everything else — freeform text that the regex can't parse.
 
-## Install
-
-### Gradle (JVM)
-
-```kotlin
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation("com.winwithpickr:anthropic:0.1.0")
-}
-```
-
 ## Usage
 
 ```kotlin
