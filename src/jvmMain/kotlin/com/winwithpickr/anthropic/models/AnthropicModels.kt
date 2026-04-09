@@ -85,6 +85,13 @@ data class ExtractedDeadline(
     @SerialName("deadline_iso") val deadlineIso: String? = null,
     val reasoning: String? = null,
     @SerialName("sport_context") val sportContext: SportContext? = null,
+    /**
+     * Semantic classification of the prediction question. Used to gate the
+     * early-pick bonus (only temporal predictions — sports, crypto, market —
+     * are eligible). Valid values: "sports", "crypto", "market", "trivia",
+     * "other". Null if not classified (e.g. LLM extraction failed).
+     */
+    val category: String? = null,
 )
 
 @Serializable
@@ -110,6 +117,8 @@ data class PredictionEntry(
     @SerialName("user_id") val userId: String,
     val username: String,
     @SerialName("reply_text") val replyText: String,
+    /** ISO-8601 instant when the reply was submitted. Pass-through — evaluator ignores. */
+    @SerialName("submitted_at") val submittedAt: String? = null,
 )
 
 @Serializable
@@ -119,4 +128,10 @@ data class ScoredPrediction(
     @SerialName("extracted_prediction") val extractedPrediction: String,
     val score: Int,
     val reasoning: String,
+    /** ISO-8601 instant when the reply was submitted. Pass-through — evaluator ignores. */
+    @SerialName("submitted_at") val submittedAt: String? = null,
+    /** Early-pick bonus applied on top of [score]. Null if no bonus. */
+    @SerialName("bonus_points") val bonusPoints: Double? = null,
+    /** [score] + [bonusPoints]. Null if no bonus applied. */
+    @SerialName("adjusted_score") val adjustedScore: Double? = null,
 )

@@ -27,7 +27,8 @@ class DeadlineExtractor(
         )
 
         val SYSTEM_PROMPT = """
-            You extract submission deadlines and sport context from prediction giveaway questions.
+            You extract submission deadlines, sport context, and a category
+            classification from prediction giveaway questions.
             The goal is to estimate when the outcome becomes known — that is the deadline.
 
             Rules:
@@ -45,6 +46,15 @@ class DeadlineExtractor(
             Sport context: If the question references a specific sporting event, populate sport_context
             with the sport type, league, and team names/cities mentioned. This metadata is used to look
             up live game data for more accurate deadline estimation. Leave null for non-sports predictions.
+
+            Category classification (required): set "category" to exactly one of:
+            - "sports" — any game with a scheduled start/end (NBA, NFL, MLB, soccer, etc.)
+            - "crypto" — cryptocurrency price, market cap, or "close" predictions (BTC, ETH, etc.)
+            - "market" — stock, FX, commodity, or index price predictions (S&P 500, AAPL, gold, etc.)
+            - "trivia" — static-knowledge questions whose answer does not depend on a future event
+              (e.g. "Who won the 1969 World Series?", "What is the capital of Japan?")
+            - "other" — anything else (pop culture, award shows, political outcomes that don't
+              fit the above buckets)
 
             Use the extract_deadline tool to return your result.
         """.trimIndent()
@@ -83,8 +93,22 @@ class DeadlineExtractor(
                         }
                     }
                 }
+                putJsonObject("category") {
+                    put("type", "string")
+                    putJsonArray("enum") {
+                        add(JsonPrimitive("sports"))
+                        add(JsonPrimitive("crypto"))
+                        add(JsonPrimitive("market"))
+                        add(JsonPrimitive("trivia"))
+                        add(JsonPrimitive("other"))
+                    }
+                    put("description", "Semantic classification of the prediction. sports=game with scheduled end, crypto=cryptocurrency price prediction, market=stock/FX/commodity price prediction, trivia=static-knowledge question, other=everything else.")
+                }
             }
-            putJsonArray("required") { add(JsonPrimitive("found")) }
+            putJsonArray("required") {
+                add(JsonPrimitive("found"))
+                add(JsonPrimitive("category"))
+            }
         }
     }
 
