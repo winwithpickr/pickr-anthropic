@@ -47,11 +47,12 @@ class AnthropicClient(
             Users mention the bot to start or pick winners for giveaways.
 
             Extract the structured command from the tweet text. Key rules:
-            - A command must mention starting a giveaway, picking winners, or drawing winners.
+            - A command must either: mention starting a giveaway / picking winners / drawing winners, OR be a prediction contest (asking followers to guess, predict, or vote on an outcome).
             - "start" or "watch" → trigger_mode "watch" (bot watches for host signal to end)
             - "pick" without "start" → trigger_mode "immediate" (pick winners now)
             - "in Xh" or "in Xd" → trigger_mode "scheduled" with scheduled_delay_hours
-            - "predict", "prediction", "whoever gets closest", "guess the score" → selection_mode "predict", trigger_mode "watch"
+            - "predict", "prediction", "whoever gets closest", "guess the score", "drop your guesses", "what will the score be", "who's winning" → selection_mode "predict", trigger_mode "watch"
+            - Any tweet that asks followers to predict, guess, or vote on an outcome (scores, prices, stats, results) IS a predict command even without the words "pick", "start", or "giveaway"
             - Entry sources: replies (default), retweets, likes, quote tweets
             - "from replies+retweets" or "who replied and retweeted" → reply=true, retweet=true
             - "must be following" or "followers only" → follow_host=true

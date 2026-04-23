@@ -206,6 +206,30 @@ class AnthropicCommandExtractorIntegrationTest {
         assertEquals(50, result.conditions.minFollowers)
     }
 
+    // ── Predict mode ─────────────────────────────────────────────────
+
+    @Test
+    fun `guess the score triggers predict mode`() = runTest(timeout = 15.seconds) {
+        val result = extractor.extract(
+            "Who's winning the Tigers Brewers game today and what will the score be? Drop your guesses! Voting ends at 2pm @winwithpickr",
+            BOT_HANDLE,
+        )
+        assertNotNull(result, "Prediction contest should be recognized as a command")
+        assertEquals(com.winwithpickr.core.models.SelectionMode.PREDICT, result.selectionMode)
+        assertEquals(TriggerMode.WATCH, result.triggerMode)
+    }
+
+    @Test
+    fun `explicit predict keyword`() = runTest(timeout = 15.seconds) {
+        val result = extractor.extract(
+            "@winwithpickr predict the final score of tonight's game",
+            BOT_HANDLE,
+        )
+        assertNotNull(result)
+        assertEquals(com.winwithpickr.core.models.SelectionMode.PREDICT, result.selectionMode)
+        assertEquals(TriggerMode.WATCH, result.triggerMode)
+    }
+
     // ── Non-commands ────────────────────────────────────────────────
 
     @Test
