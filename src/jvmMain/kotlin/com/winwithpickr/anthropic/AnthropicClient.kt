@@ -52,6 +52,7 @@ class AnthropicClient(
             - "pick" without "start" → trigger_mode "immediate" (pick winners now)
             - "in Xh" or "in Xd" → trigger_mode "scheduled" with scheduled_delay_hours
             - "predict", "prediction", "whoever gets closest", "guess the score", "drop your guesses", "what will the score be", "who's winning" → selection_mode "predict", trigger_mode "watch"
+            - "challenge", "decode", "puzzle", "riddle", "solve this", "crack the code" → selection_mode "challenge", trigger_mode "watch"
             - Any tweet that asks followers to predict, guess, or vote on an outcome (scores, prices, stats, results) IS a predict command even without the words "pick", "start", or "giveaway"
             - Entry sources: replies (default), retweets, likes, quote tweets
             - "from replies+retweets" or "who replied and retweeted" → reply=true, retweet=true
@@ -60,6 +61,7 @@ class AnthropicClient(
             - Winner count defaults to 1 unless specified
             - If the text doesn't contain a giveaway command, set is_command=false
             - Ignore the bot's @handle in the text when parsing
+            - early_bonus defaults to true (early submissions score higher). Set to false if the user says "no bonus", "no early bonus", "pure random", "equal weight", "no time bonus", or similar
         """.trimIndent()
 
         private fun buildToolSchema(): JsonElement = buildJsonObject {
@@ -69,7 +71,7 @@ class AnthropicClient(
                 putJsonObject("winners") { put("type", "integer"); put("description", "Number of winners to pick (default 1)") }
                 putJsonObject("trigger_mode") { put("type", "string"); put("description", "immediate, watch, or scheduled"); putJsonArray("enum") { add(kotlinx.serialization.json.JsonPrimitive("immediate")); add(kotlinx.serialization.json.JsonPrimitive("watch")); add(kotlinx.serialization.json.JsonPrimitive("scheduled")) } }
                 putJsonObject("scheduled_delay_hours") { put("type", "integer"); put("description", "Hours to delay before picking (only for scheduled mode)") }
-                putJsonObject("selection_mode") { put("type", "string"); put("description", "random (default) or predict (prediction giveaway — pick from best-scoring entries)"); putJsonArray("enum") { add(kotlinx.serialization.json.JsonPrimitive("random")); add(kotlinx.serialization.json.JsonPrimitive("predict")) } }
+                putJsonObject("selection_mode") { put("type", "string"); put("description", "random (default), predict (LLM-scored prediction giveaway), or challenge (exact-match puzzle/trivia — right or wrong, winner drawn from correct answers)"); putJsonArray("enum") { add(kotlinx.serialization.json.JsonPrimitive("random")); add(kotlinx.serialization.json.JsonPrimitive("predict")); add(kotlinx.serialization.json.JsonPrimitive("challenge")) } }
                 putJsonObject("reply") { put("type", "boolean"); put("description", "Include replies as entry source") }
                 putJsonObject("retweet") { put("type", "boolean"); put("description", "Include retweets as entry source") }
                 putJsonObject("like") { put("type", "boolean"); put("description", "Include likes as entry source") }
@@ -81,6 +83,7 @@ class AnthropicClient(
                 putJsonObject("required_hashtag") { put("type", "string"); put("description", "Required hashtag (without #)") }
                 putJsonObject("required_quote_text") { put("type", "string"); put("description", "Required text in quote tweets") }
                 putJsonObject("min_tags") { put("type", "integer"); put("description", "Minimum number of friends tagged") }
+                putJsonObject("early_bonus") { put("type", "boolean"); put("description", "Whether early submissions score higher (default true). Set false for 'no bonus', 'pure random', 'equal weight'") }
             }
             putJsonArray("required") { add(kotlinx.serialization.json.JsonPrimitive("is_command")) }
         }

@@ -25,12 +25,13 @@ class AnthropicCommandExtractor(config: AnthropicConfig) : CommandExtractor {
 
         val selectionMode = when (extracted.selectionMode) {
             "predict" -> SelectionMode.PREDICT
+            "challenge" -> SelectionMode.CHALLENGE
             else -> SelectionMode.RANDOM
         }
 
         val triggerMode = when {
-            // Predict always forces watch mode
-            selectionMode == SelectionMode.PREDICT -> TriggerMode.WATCH
+            // Predict and challenge always force watch mode
+            selectionMode == SelectionMode.PREDICT || selectionMode == SelectionMode.CHALLENGE -> TriggerMode.WATCH
             extracted.triggerMode == "watch" -> TriggerMode.WATCH
             extracted.triggerMode == "scheduled" -> TriggerMode.SCHEDULED
             else -> TriggerMode.IMMEDIATE
@@ -59,6 +60,7 @@ class AnthropicCommandExtractor(config: AnthropicConfig) : CommandExtractor {
             triggerMode = triggerMode,
             scheduledDelayMs = scheduledDelayMs,
             selectionMode = selectionMode,
+            earlyBonus = extracted.earlyBonus,
         )
     }
 }

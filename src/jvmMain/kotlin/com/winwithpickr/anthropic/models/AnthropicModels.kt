@@ -75,6 +75,7 @@ data class ExtractedCommand(
     @SerialName("required_hashtag") val requiredHashtag: String? = null,
     @SerialName("required_quote_text") val requiredQuoteText: String? = null,
     @SerialName("min_tags") val minTags: Int = 0,
+    @SerialName("early_bonus") val earlyBonus: Boolean = true,
 )
 
 // ── Deadline extraction models ───────────────────────────────────────────────
